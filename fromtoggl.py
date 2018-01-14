@@ -9,11 +9,14 @@ from tzlocal import get_localzone
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__package__)
 
+today = date.today()
+START_DATE = today - timedelta(days=today.weekday())
+
 # ##### CONFIGURATION START #####
 CLIENT_ID = 34710800
 GAP = timedelta(minutes=10)
 ROUNDING_ACCURACY = timedelta(minutes=5)
-START_DATE = date(2018, 1, 8)
+# START_DATE = date(2018, 1, 8)
 # ##### CONFIGURATION END #####
 
 ENVIRONMENT_VARIABLE_TOGGL_API_TOKEN = "TOGGL_API_TOKEN"
@@ -37,6 +40,7 @@ response = requests.get(
 data = response.json()
 pids = [entry["id"] for entry in data]
 logger.info("processing projects: {}".format(pids))
+logger.info("start date: {}".format(START_DATE))
 
 start_date_string = "{}T00%3A00%3A00%2B00%3A00".format(START_DATE.isoformat())
 

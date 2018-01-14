@@ -30,7 +30,7 @@ Python 3.6 is required.
    - `GAP`: maximum time between two time entries to consider these the same block of work and merge them together
    - `ROUNDING_ACCURACY`: number of minutes by which to round time entries up or down (in favor of the worker, thus
    accounting for entering the office and such), e.g. 12:03 becomes 12:00  
-   - `START_DATE`: start date to export time entries from 
+   - `START_DATE`: start date to export time entries from (uses last Monday by default)
 
 6. Run the script:
 

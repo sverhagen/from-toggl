@@ -52,14 +52,6 @@ previous_start = None
 previous_stop = None
 
 
-def append_result():
-    if previous_start:
-        results.append({
-            "start": previous_start,
-            "stop": previous_stop
-        })
-
-
 def ceil_dt(dt):
     min_dt = datetime.min - dt.replace(tzinfo=None)
     return dt + (min_dt % ROUNDING_ACCURACY)
@@ -70,14 +62,22 @@ def floor_dt(dt):
     return dt - (ROUNDING_ACCURACY - min_dt % ROUNDING_ACCURACY) % ROUNDING_ACCURACY
 
 
+def append_result():
+    if previous_start:
+        results.append({
+            "start": floor_dt(previous_start),
+            "stop": ceil_dt(previous_stop)
+        })
+
+
 for entry in data:
     pid = entry["pid"]
     if not entry["pid"] in pids:
         logger.info("skipping project {}".format(pid))
         continue
 
-    start = floor_dt(dateutil.parser.parse(entry["start"]).replace(second=0, microsecond=0))
-    stop = ceil_dt(dateutil.parser.parse(entry["stop"]).replace(second=0, microsecond=0))
+    start = dateutil.parser.parse(entry["start"]).replace(second=0, microsecond=0)
+    stop = dateutil.parser.parse(entry["stop"]).replace(second=0, microsecond=0)
 
     delta = start - previous_stop if previous_stop else None
     new_entry = not previous_stop or (delta > GAP if delta else None)
@@ -143,12 +143,12 @@ print("                Actual  Actual  Actual  Punch")
 print("Day             In Date In      Out     Hours")
 print("--------------- ------- ------- ------- -----")
 for result in results:
-    start = result["start"]
-    stop = result["stop"]
-    delta = stop - start
+    rounded_start = result["start"]
+    rounded_stop = result["stop"]
+    delta = rounded_stop - rounded_start
     print("{}\t{}\t{}\t{}".format(
-        format_weekday(start),
-        format_datetime(start),
-        format_time(stop),
-        format_delta(start, stop)
+        format_weekday(rounded_start),
+        format_datetime(rounded_start),
+        format_time(rounded_stop),
+        format_delta(rounded_start, rounded_stop)
     ))

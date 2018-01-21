@@ -146,6 +146,7 @@ print()
 print("                Actual  Actual  Actual  Punch")
 print("Day             In Date In      Out     Hours")
 print("--------------- ------- ------- ------- -----")
+total_delta = timedelta(0)
 for result in results:
     rounded_start = result["start"]
     rounded_stop = result["stop"]
@@ -156,3 +157,10 @@ for result in results:
         format_time(rounded_stop),
         format_delta(rounded_start, rounded_stop)
     ))
+
+    total_delta += (rounded_stop - rounded_start)
+
+print()
+print("{} entries".format(len(results)))
+print("total: {0:.2f} hours"
+      .format(total_delta.days * 24 + total_delta.seconds / 3600))

@@ -75,10 +75,12 @@ def append_result():
             "stop": ceil_dt(previous_stop)
         })
 
-
 for entry in data:
+    if not "pid" in entry:
+        continue
+
     pid = entry["pid"]
-    if not entry["pid"] in pids:
+    if not pid in pids:
         logger.info("skipping project {}".format(pid))
         continue
 

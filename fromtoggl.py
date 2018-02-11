@@ -72,7 +72,8 @@ def append_result():
     if previous_start:
         results.append({
             "start": floor_dt(previous_start),
-            "stop": ceil_dt(previous_stop)
+            "stop": ceil_dt(previous_stop),
+            "running": previous_currently_running
         })
 
 for entry in data:
@@ -84,8 +85,17 @@ for entry in data:
         logger.info("skipping project {}".format(pid))
         continue
 
+    if "stop" in entry:
+        base_stop = dateutil.parser.parse(entry["stop"])
+        currently_running = False
+    else:
+        logger.warn("using current date/time for entry that is currently still running");
+        now = datetime.now()
+        base_stop = now.astimezone(get_localzone())
+        currently_running = True
+
     start = dateutil.parser.parse(entry["start"]).replace(second=0, microsecond=0)
-    stop = dateutil.parser.parse(entry["stop"]).replace(second=0, microsecond=0)
+    stop = base_stop.replace(second=0, microsecond=0)
 
     delta = start - previous_stop if previous_stop else None
     new_entry = not previous_stop or (delta > GAP if delta else None)
@@ -104,6 +114,7 @@ for entry in data:
         previous_start = start
 
     previous_stop = stop
+    previous_currently_running = currently_running
 
 append_result()
 
@@ -155,10 +166,11 @@ for result in results:
     rounded_start = result["start"]
     rounded_stop = result["stop"]
     delta = rounded_stop - rounded_start
-    print("{}\t{}\t{}\t{}".format(
+    print("{}\t{}\t{}{}\t{}".format(
         format_weekday(rounded_start),
         format_datetime(rounded_start),
         format_time(rounded_stop),
+        "*" if result["running"] else "",
         format_delta(rounded_start, rounded_stop)
     ))
 

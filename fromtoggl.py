@@ -178,5 +178,5 @@ for result in results:
 
 print()
 print("{} entries".format(len(results)))
-print("total: {0:.2f} hours"
+print("total: {0:.2f} hours (decimal)"
       .format(total_delta.days * 24 + total_delta.seconds / 3600))

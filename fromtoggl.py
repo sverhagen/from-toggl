@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
+import dateutil.parser
 import logging
 import os
-from datetime import date, timedelta, datetime
-
-import dateutil.parser
 import requests
+import time as _time
+from datetime import date, datetime, time, timedelta
 from tzlocal import get_localzone
 
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +22,7 @@ ROUNDING_ACCURACY = timedelta(minutes=5)
 # ##### CONFIGURATION END #####
 
 ENVIRONMENT_VARIABLE_TOGGL_API_TOKEN = "TOGGL_API_TOKEN"
+TIME_OFFSET = timedelta(hours=int(_time.timezone / 3600))
 
 
 def get_api_token():
@@ -69,12 +70,32 @@ def floor_dt(dt):
 
 
 def append_result():
-    if previous_start:
+    local_previous_start = previous_start
+
+    if local_previous_start:
+        start_time = (local_previous_start - TIME_OFFSET).time()
+        stop_time = (previous_stop - TIME_OFFSET).time()
+
+        if start_time > stop_time:
+            results.append({
+                "start": floor_dt(local_previous_start),
+                "stop": ceil_dt(truncate_to_midnight(previous_stop)),
+                "running": previous_currently_running
+            })
+
+            local_previous_start = truncate_to_midnight(previous_stop)
+
         results.append({
-            "start": floor_dt(previous_start),
+            "start": floor_dt(local_previous_start),
             "stop": ceil_dt(previous_stop),
             "running": previous_currently_running
         })
+
+
+def truncate_to_midnight(previous_stop):
+    truncated = datetime.combine(previous_stop.date(), time(hour=0))
+    return truncated.astimezone(get_localzone())
+
 
 for entry in data:
     if not "pid" in entry:

@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__package__)
 
 today = date.today()
-START_DATE = today - timedelta(days=today.weekday())
+START_DATE = today - timedelta(days=today.weekday() - 1)
 
 # ##### CONFIGURATION START #####
 CLIENT_ID = 34710800

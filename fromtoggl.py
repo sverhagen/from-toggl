@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__package__)
 
 today = date.today()
-START_DATE = today - timedelta(days=today.weekday() - 1)
+START_DATE = datetime.combine(today - timedelta(days=today.weekday()), time()).astimezone()
 
 # ##### CONFIGURATION START #####
 CLIENT_ID = 34710800
@@ -45,7 +45,7 @@ pids = [entry["id"] for entry in data]
 logger.info("processing projects: {}".format(pids))
 logger.info("start date: {}".format(START_DATE))
 
-start_date_string = "{}T00%3A00%3A00%2B00%3A00".format(START_DATE.isoformat())
+start_date_string = START_DATE.isoformat()
 
 response = requests.get(
     "https://www.toggl.com/api/v8/time_entries?start_date={}".format(start_date_string),

@@ -13,6 +13,7 @@ logger = logging.getLogger(__package__)
 
 today = date.today()
 START_DATE = datetime.combine(today - timedelta(days=today.weekday()), time()).astimezone()
+END_DATE = START_DATE + timedelta(days=7)
 
 # ##### CONFIGURATION START #####
 CLIENT_ID = 34710800
@@ -22,7 +23,7 @@ ROUNDING_ACCURACY = timedelta(minutes=5)
 # ##### CONFIGURATION END #####
 
 ENVIRONMENT_VARIABLE_TOGGL_API_TOKEN = "TOGGL_API_TOKEN"
-TIME_OFFSET = timedelta(hours=int(_time.timezone / 3600))
+TIME_OFFSET = timedelta(hours=int(_time.altzone / 3600))
 
 
 def get_api_token():
@@ -44,11 +45,13 @@ data = response.json()
 pids = [entry["id"] for entry in data]
 logger.info("processing projects: {}".format(pids))
 logger.info("start date: {}".format(START_DATE))
+logger.info("end date: {}".format(END_DATE))
 
 start_date_string = START_DATE.isoformat()
+end_date_string = END_DATE.isoformat()
 
 response = requests.get(
-    "https://www.toggl.com/api/v8/time_entries?start_date={}".format(start_date_string),
+    "https://www.toggl.com/api/v8/time_entries?start_date={}&end_date={}".format(start_date_string, end_date_string),
     auth=auth
 )
 
